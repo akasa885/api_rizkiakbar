@@ -63,6 +63,25 @@ class Handler extends ExceptionHandler
              'error' => 'Unauthorized',
            ], 401);
          }
+
+         //jika ada alamat route yang tidak tersedia
+         if($exception instanceof \Symfony\Component\HttpKernel\Exception\NotFoundHttpException)
+         {
+           return response()->json([
+             'error' => 'Not Found',
+           ], 404);
+         }
+
+         //penangkap error pada request ke Database
+         if ($exception instanceof \Illuminate\Database\Eloquent\ModelNotFoundException)
+         {
+           //mendapatkan model yang error berdasar request, lalu di explode
+           $modelClass = explode('\\', $exception->getModel());
+
+           return response()->json([
+             'error' => end($modelClass) . ' Not Found',
+           ], 404);
+         }
        }
         return parent::render($request, $exception);
     }
